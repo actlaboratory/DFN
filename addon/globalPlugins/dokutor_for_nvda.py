@@ -25,7 +25,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.clear()
 		else:
 			self.load()
-	#Translators: Input help mode message for set synth command.
+	#Translators: Input help mode message for change dict command.
 	script_changeDict.__doc__ = _("理療科用読み辞書の適用状態を切り替える")
 
 	def load(self):
