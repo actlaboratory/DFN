@@ -1,4 +1,5 @@
-/addon/doc/
+addon/doc/*.css
+addon/doc/ja/
 
 *_docHandler.py
 *.html
