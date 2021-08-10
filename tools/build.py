@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import urllib.request
 
-import buildVars.ADDON_VERSION
+import buildVars
 from tools import bumpup
 
 class build:
@@ -49,7 +49,6 @@ class build:
 			self.makeSnapshotVersionNumber()
 
 		# ƒrƒ‹ƒh
-		self.makeVersionInfo()
 		self.build(package_path, build_filename)
 		archive_name = "DFN-%s.zip" % (build_filename,)
 
@@ -85,6 +84,23 @@ class build:
 		minor = str(dt.day)
 		patch = str(int(math.floor((dt.hour*3600+dt.minute*60+dt.second)/86400*1000)))
 		bumpup.bumpup(major+"."+minor+"."+patch, str(dt.date()))
+
+	def makeVersionInfo(self):
+		print("making version info... version="+buildVars.ADDON_VERSION)
+		with open("tools/baseVersionInfo.txt", mode = "r") as f:
+			version_text = f.read()
+		version_text = version_text.replace("%FILE_VERSION%", buildVars.ADDON_VERSION.replace(".", ","))
+		version_text = version_text.replace("%PRODUCT_VERSION%", buildVars.APP_VERSION.replace(".", ","))
+		version_text = version_text.replace("%COMPANY_NAME%", constants.APP_DEVELOPERS)
+		version_text = version_text.replace("%FILE_DESCRIPTION%", constants.APP_FULL_NAME)
+		version_text = version_text.replace("%FILE_VERSION_TEXT%", constants.APP_VERSION)
+		version_text = version_text.replace("%REGAL_COPYRIGHT%", constants.APP_COPYRIGHT_MESSAGE)
+		original_file_name = os.path.splitext(os.path.basename(constants.STARTUP_FILE))[0]+".exe"
+		version_text = version_text.replace("%ORIGINAL_FILENAME%", original_file_name)
+		version_text = version_text.replace("%PRODUCT_NAME%", constants.APP_NAME)
+		version_text = version_text.replace("%PRODUCT_VERSION_TEXT%", constants.APP_VERSION)
+		with open("version.txt", mode = "w") as f:
+			f.write(version_text)
 
 	def build(self, package_path, build_filename):
 		print("Building...")

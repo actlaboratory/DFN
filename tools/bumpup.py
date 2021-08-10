@@ -65,6 +65,10 @@ def getCurrentVersion():
 		except:
 			print("Unable to parse %s, using default." % VERSION_FILE_NAME)
 			return "1.0.0"
+	else:
+		print("File not found %s, using default." % VERSION_FILE_NAME)
+		return "1.0.0"
+
 
 
 #step3: bumpup

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 ADDON_VERSION = "1.0.0"
-ADDON_RELEASE_DATE = "2020-01-01"
+ADDON_RELEASE_DATE = "2021-08-10"
 
 # Build customizations
 # Change this file instead of sconstruct or manifest files, whenever possible.

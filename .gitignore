@@ -9,3 +9,7 @@ addon/doc/ja/
 *.py[co]
 *.nvda-addon
 .sconsign.dblite
+
+__pycache__
+/output
+DFN-snapshot.zip
