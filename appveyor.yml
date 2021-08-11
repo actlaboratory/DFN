@@ -26,7 +26,8 @@ cache:
 
 install:
   # We need wheel installed to build wheels
-  - cmd: set path=C:\\Python37; C:\\Python37\\Scripts; C:\\Python37\\lib; %path%
+  - cmd: set path=C:\\Python37;C:\\Python37\\Scripts;C:\\Python37\\lib;%path%
+  - cmd: echo %path%
   - cmd: python -m pip install scons
 
 build: off
@@ -46,6 +47,7 @@ after_test:
   # Again, you only need build.cmd if you're building C extensions for
   # 64-bit Python 3.3/3.4. And you need to use %PYTHON% to get the correct
   # interpreter
+  - cmd: echo %path%
   - cmd: python tools\\build.py --appveyor
   - cmd: curl "https://actlab.org/git-release.php?repo_name=%APPVEYOR_REPO_NAME%&tag_name=DFN-latestcommit&password=%SCRIPT_PASSWORD%"
   - cmd: git tag -d DFN-latestcommit
