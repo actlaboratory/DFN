@@ -1,3 +1,6 @@
+#Copyright (C) 2021 Hiroki Fujii <hfujii@hisystron.com>
+
+
 import os
 import globalPluginHandler
 import speechDictHandler
