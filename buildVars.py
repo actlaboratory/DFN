@@ -28,7 +28,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("このアドオンは、追加の理療科用読み辞書を提供します。理療科用読み辞書は、必要なときのみ、適用することができます。\n・適用状態切り替え: [NVDA] + [Ctrl] + [Shift] + D\n\n＜ご注意＞\n本アドオンは、添付の readme.txt をお読みになり、諸条件にご同意いただいたうえでご使用ください。"),
 	# version
-	"addon_version": "1.0",
+	"addon_version": ADDON_VERSION,
 	# Author(s)
 	"addon_author": "Hiroki Fujii - ACT Laboratory <support@actlab.org>",
 	# URL for the add-on documentation support
