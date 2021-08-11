@@ -49,9 +49,9 @@ after_test:
   - cmd: python tools\\build.py --appveyor
   - cmd: curl "https://actlab.org/git-release.php?repo_name=%APPVEYOR_REPO_NAME%&tag_name=DFN-latestcommit&password=%SCRIPT_PASSWORD%"
   - cmd: git tag -d DFN-latestcommit
-  - cmd: git push -d https://actlab-auto:%githubToken%@github.com/actlaboratory/DFN.git NPC-latestcommit
+  - cmd: git push -d https://actlab-auto:%githubToken%@github.com/actlaboratory/DFN.git DFN-latestcommit
   - cmd: git tag DFN-latestcommit
-  - cmd: git push https://actlab-auto:%githubToken%@github.com/actlaboratory/DFN.git NPC-latestcommit
+  - cmd: git push https://actlab-auto:%githubToken%@github.com/actlaboratory/DFN.git DFN-latestcommit
 
 artifacts:
   - path: DFN-*.zip
