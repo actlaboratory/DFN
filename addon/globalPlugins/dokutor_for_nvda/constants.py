@@ -11,6 +11,7 @@ addonRootDir = os.path.abspath(os.path.join(addonDir, "..", ".."))
 
 curAddon = addonHandler.Addon(addonRootDir)
 addonName = curAddon.manifest["name"]
+addonKeyword = "DFN"
 addonSummary = curAddon.manifest["summary"]
 addonVersion = curAddon.manifest["version"]
 addonDocFileName = curAddon.manifest["docFileName"]
