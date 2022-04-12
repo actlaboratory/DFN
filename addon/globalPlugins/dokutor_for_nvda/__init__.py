@@ -38,7 +38,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         super(GlobalPlugin, self).__init__(*args, **kwargs)
         
         # dokutar dic file path
-        self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(__file__))), "riryou_dict.dat")
+        self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dat")
         
         if globalVars.appArgs.secure:
             return
