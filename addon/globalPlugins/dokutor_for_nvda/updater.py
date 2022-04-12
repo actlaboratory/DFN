@@ -71,13 +71,13 @@ class NVDAAddOnUpdater ():
             f = urlopen(req)
         except BaseException:
             if self.mode == MANUAL:
-                gui.messageBox(_("Unable to connect to update server.\nCheck your internet connection."),
-                               _("Error"), style=wx.CENTER | wx.ICON_WARNING)
+                gui.messageBox(_("アップデートサーバに接続できません。\nインターネット接続を確認してください。"),
+                               _("エラー"), style=wx.CENTER | wx.ICON_WARNING)
             return False
 
         if f.getcode() != 200:
             if self.mode == MANUAL:
-                gui.messageBox(_("Unable to connect to update server."), _("Error"), style=wx.CENTER | wx.ICON_WARNING)
+                gui.messageBox(_("アップデートサーバに接続できません。"), _("エラー"), style=wx.CENTER | wx.ICON_WARNING)
             return False
 
         try:
@@ -87,30 +87,30 @@ class NVDAAddOnUpdater ():
         except BaseException:
             if self.mode == MANUAL:
                 gui.messageBox(
-                    _("The update information is invalid.\nPlease contact ACT Laboratory for further information."),
-                    _("Error"),
+                    _("不正なデータが送信されました。\nこの問題が継続する場合、ACT Laboratoryにお問い合わせください。"),
+                    _("エラー"),
                     style=wx.CENTER | wx.ICON_WARNING)
             return False
 
         code = update_dict["code"]
         if code == UPDATER_LATEST:
             if self.mode == MANUAL:
-                gui.messageBox(_("No updates found.\nYou are using the latest version."), _("Update check"), style=wx.CENTER | wx.ICON_INFORMATION)
+                gui.messageBox(_("お使いのアドオンは最新です。"), _("アップデート確認"), style=wx.CENTER | wx.ICON_INFORMATION)
             return False
         elif code == UPDATER_BAD_PARAM:
             if self.mode == MANUAL:
-                gui.messageBox(_("The request parameter is invalid. Please contact the developer."),
-                               _("Update check"), style=wx.CENTER | wx.ICON_INFORMATION)
+                gui.messageBox(_("不正なデータが送信されました。\nこの問題が継続する場合、ACT Laboratoryにお問い合わせください。"),
+                               _("アップデート確認"), style=wx.CENTER | wx.ICON_INFORMATION)
             return False
         elif code == UPDATER_NOT_FOUND:
             if self.mode == MANUAL:
-                gui.messageBox(_("The updater is not registered. Please contact the developer."),
-                               _("Update check"), style=wx.CENTER | wx.ICON_INFORMATION)
+                gui.messageBox(_("このアドオンのアップデータは登録されていません。\nこの問題が継続する場合、ACT Laboratoryまでお問い合わせください。"),
+                               _("アップデート確認"), style=wx.CENTER | wx.ICON_INFORMATION)
             return False
         elif code == UPDATER_VISIT_SITE:
             if self.mode == MANUAL:
-                gui.messageBox(_("An update was found, but updating from the current version is not possible. Please visit the software's website. "),
-                               _("Update check"), style=wx.CENTER | wx.ICON_INFORMATION)
+                gui.messageBox(_("アップデートが見つかりましたが、このままアップデートを継続することができません。\nアドオンのウェブサイトを確認してください。"),
+                               _("アップデート確認"), style=wx.CENTER | wx.ICON_INFORMATION)
             return False
 
         new_version = update_dict["update_version"]
@@ -121,8 +121,8 @@ class NVDAAddOnUpdater ():
             hash = update_dict["updater_hash"]
         # end set hash
 
-        caption = _("Update confirmation")
-        question = _("{summary} Ver.{newVersion} is available.\nWould you like to update?\nCurrent version: {currentVersion}\nNew version: {newVersion}").format(
+        caption = _("アップデート確認")
+        question = _("{summary} Ver.{newVersion}が利用できます。\nアップデートしますか？\n現在のバージョン: {currentVersion}\n最新バージョン: {newVersion}").format(
             summary=addonSummary, newVersion=new_version, currentVersion=addonVersion)
         answer = gui.messageBox(question, caption, style=wx.CENTER | wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_INFORMATION)
         if answer == wx.OK:
@@ -148,8 +148,8 @@ class UpdateDownloader(updateCheck.UpdateDownloader):
         self._shouldCancel = False
         self._guiExecTimer = wx.PyTimer(self._guiExecNotify)
         gui.mainFrame.prePopup()
-        self._progressDialog = wx.ProgressDialog(_("Downloading add-on update"),
-                                                 _("Connecting"),
+        self._progressDialog = wx.ProgressDialog(_("アップデートをダウンロード中"),
+                                                 _("接続中..."),
                                                  style=wx.PD_CAN_ABORT | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME | wx.PD_AUTO_HIDE,
                                                  parent=gui.mainFrame)
         self._progressDialog.Raise()
@@ -161,8 +161,8 @@ class UpdateDownloader(updateCheck.UpdateDownloader):
         self._stopped()
         self.cleanup_tempfile()
         gui.messageBox(
-            _("Error downloading add-on update."),
-            translate("Error"),
+            _("アップデートのダウンロードに失敗しました。"),
+            _("エラー"),
             wx.OK | wx.ICON_ERROR)
 
     def _download(self, url):
@@ -230,8 +230,8 @@ class UpdateDownloader(updateCheck.UpdateDownloader):
                     addon.requestRemove()
                     break
             progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
-                                                             _("Updating add-on"),
-                                                             _("Please wait while the add-on is being updated."))
+                                                             _("アップデートをダウンロード中"),
+                                                             _("アドオンがアップデートされるまでお待ちください。"))
             try:
                 gui.ExecAndPump(addonHandler.installAddonBundle, bundle)
             except BaseException:
@@ -240,8 +240,8 @@ class UpdateDownloader(updateCheck.UpdateDownloader):
                     addonGui.AddonsDialog(gui.mainFrame).refreshAddonsList()
                 progressDialog.done()
                 del progressDialog
-                gui.messageBox(_("Failed to update add-on  from %s.") % self.destPath,
-                               translate("Error"),
+                gui.messageBox(_("アドオンのアップデートに失敗しました。"),
+                               _("エラー"),
                                wx.OK | wx.ICON_ERROR)
                 return
             else:
