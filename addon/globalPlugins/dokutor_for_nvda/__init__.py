@@ -151,7 +151,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.clear()
         else:
             self.load()
-        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
     
     def load(self):
         ui.message(_("理療科用読み辞書を適用します。"))
@@ -162,6 +161,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         ls = list(speechDictHandler.dictTypes)
         ls.insert(ls.index("default") + 1, "riryou")
         speechDictHandler.dictTypes = tuple(ls)
+        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
         self.finishTone()
 
     def clear(self):
@@ -173,6 +173,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             speechDictHandler.dictTypes = tuple(ls)
         if "riryou" in speechDictHandler.dictionaries:
             del speechDictHandler.dictionaries["riryou"]
+        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
         self.finishTone()
 
     def finishTone(self):
