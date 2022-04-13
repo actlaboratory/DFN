@@ -58,7 +58,7 @@ class build:
 			self.version_number = build_filename
 
 		# ビルド
-		self.build(package_path, self.version_number)
+		self.build(package_path, build_filename)
 		archive_name = "%s-%s.zip" % (buildVars.ADDON_KEYWORD, build_filename,)
 		addon_filename = "%s-%s.nvda-addon" % (buildVars.ADDON_NAME, self.version_number)
 		shutil.copyfile(package_path + addon_filename, addon_filename)
