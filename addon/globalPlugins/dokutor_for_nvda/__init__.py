@@ -75,6 +75,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         gui.mainFrame.sysTrayIcon.Bind(
             wx.EVT_MENU, self.toggleEnableOnStartup, self.enableOnStartupToggleItem)
         
+        self.dictStateToggleItem = self.rootMenu.Append(wx.ID_ANY, self.dictStateToggleString(),
+            _("理療科用読み辞書の適用状態を切り替えます。")
+        )
+        gui.mainFrame.sysTrayIcon.Bind(
+            wx.EVT_MENU, self.toggleDictState, self.dictStateToggleItem)
+        
         self.updateCheckToggleItem = self.rootMenu.Append(
             wx.ID_ANY,
             self.updateCheckToggleString(),
@@ -94,6 +100,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.rootMenuItem = gui.mainFrame.sysTrayIcon.menu.Insert(
             2, wx.ID_ANY, _("DFN"), self.rootMenu)
 
+    def dictStateToggleString(self):
+        return _("理療科用読み辞書を解除する") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する")
+    
     def enableOnStartupToggleString(self):
         return _("起動時の理療科用読み辞書の適用を無効化") if self.getEnableOnStartupSetting() is True else _("起動時の理療科用読み辞書の適用を有効化")
     
@@ -137,6 +146,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     #Translators: Input help mode message for change dict command.
     script_changeDict.__doc__ = _("理療科用読み辞書の適用状態を切り替える")
 
+    def toggleDictState(self, evt=None):
+        if "riryou" in speechDictHandler.dictTypes:
+            self.clear()
+        else:
+            self.load()
+        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
+    
     def load(self):
         ui.message(_("理療科用読み辞書を適用します。"))
         tones.beep(800, 100)
