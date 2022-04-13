@@ -62,7 +62,7 @@ class build:
 		archive_name = "%s-%s.zip" % (buildVars.ADDON_KEYWORD, build_filename,)
 		addon_filename = "%s-%s.nvda-addon" % (buildVars.ADDON_NAME, self.version_number)
 		shutil.copyfile(package_path + addon_filename, addon_filename)
-		self.makePackageInfo(archive_name, addon_filename, self.version_number)
+		self.makePackageInfo(archive_name, addon_filename, self.version_number, build_filename)
 		print("Build finished!")
 
 	def runcmd(self,cmd):
@@ -104,7 +104,7 @@ class build:
 		print("Compressing into package...")
 		shutil.make_archive("%s-%s" % (buildVars.ADDON_KEYWORD, build_filename,),'zip',package_path)
 
-	def makePackageInfo(self, archive_name, addon_filename, addon_version):
+	def makePackageInfo(self, archive_name, addon_filename, addon_version, build_filename):
 		if "APPVEYOR_REPO_COMMIT_TIMESTAMP" in os.environ:
 			#日本標準時オブジェクト
 			JST = datetime.timezone(datetime.timedelta(hours=+9))
@@ -127,7 +127,7 @@ class build:
 		info["patch_hash"] = addon_hash
 		info["version"] = addon_version
 		info["released_date"] = dateStr
-		with open("DFN-%s_info.json" % (addon_version,), mode = "w") as f:
+		with open("DFN-%s_info.json" % (build_filename,), mode = "w") as f:
 			json.dump(info, f)
 
 
