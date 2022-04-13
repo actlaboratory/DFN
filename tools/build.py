@@ -33,7 +33,7 @@ class build:
 		if 'APPVEYOR_REPO_TAG_NAME' in os.environ:
 			build_filename = os.environ['APPVEYOR_REPO_TAG_NAME']
 			# タグ名とバージョンが違ったらエラー
-			if build_filename == buildVars.ADDON_VERSION:
+			if build_filename != buildVars.ADDON_VERSION:
 				print("Unexpected tag name. expecting %s." %(buildVars.ADDON_VERSION,))
 				exit(-1)
 		else:
