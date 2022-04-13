@@ -67,6 +67,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def _setupMenu(self):
         self.rootMenu = wx.Menu()
         
+        self.dictStateToggleItem = self.rootMenu.Append(wx.ID_ANY, self.dictStateToggleString(),
+            _("理療科用読み辞書の適用状態を切り替えます。")
+        )
+        gui.mainFrame.sysTrayIcon.Bind(
+            wx.EVT_MENU, self.toggleDictState, self.dictStateToggleItem)
+        
         self.enableOnStartupToggleItem = self.rootMenu.Append(
             wx.ID_ANY,
             self.enableOnStartupToggleString(),
@@ -75,23 +81,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         gui.mainFrame.sysTrayIcon.Bind(
             wx.EVT_MENU, self.toggleEnableOnStartup, self.enableOnStartupToggleItem)
         
-        self.dictStateToggleItem = self.rootMenu.Append(wx.ID_ANY, self.dictStateToggleString(),
-            _("理療科用読み辞書の適用状態を切り替えます。")
-        )
-        gui.mainFrame.sysTrayIcon.Bind(
-            wx.EVT_MENU, self.toggleDictState, self.dictStateToggleItem)
-        
         self.updateCheckToggleItem = self.rootMenu.Append(
             wx.ID_ANY,
             self.updateCheckToggleString(),
-            _("起動時のアップデートチェックの設定状態を切り替えます。")
+            _("起動時にアップデートを確認するかどうかを設定します。")
         )
         gui.mainFrame.sysTrayIcon.Bind(
             wx.EVT_MENU, self.toggleUpdateCheck, self.updateCheckToggleItem)
 
         self.updateCheckPerformItem = self.rootMenu.Append(
             wx.ID_ANY,
-            _("アップデートを確認"),
+            _("アップデートを確認(&C)"),
             _("直ちにアップデートの確認を行います。")
         )
         gui.mainFrame.sysTrayIcon.Bind(
@@ -101,13 +101,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             2, wx.ID_ANY, _("DFN"), self.rootMenu)
 
     def dictStateToggleString(self):
-        return _("理療科用読み辞書を解除する") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する")
+        return _("理療科用読み辞書を解除する(&A)") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する(&A)")
     
     def enableOnStartupToggleString(self):
         return _("起動時の理療科用読み辞書の適用を無効化") if self.getEnableOnStartupSetting() is True else _("起動時の理療科用読み辞書の適用を有効化")
     
     def updateCheckToggleString(self):
-        return _("起動時のアップデートチェックを無効化") if self.getUpdateCheckSetting() is True else _("起動時のアップデートチェックを有効化")
+        return _("起動時のアップデートの確認を無効化") if self.getUpdateCheckSetting() is True else _("起動時のアップデートの確認を有効化")
     
     def toggleEnableOnStartup(self, evt):
         changed = not self.getEnableOnStartupSetting()
