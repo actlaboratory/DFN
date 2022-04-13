@@ -26,12 +26,16 @@ class build:
 	def __init__(self):
 		# appVeyorかどうかを判別し、処理をスタート
 		appveyor = self.setAppVeyor()
-		print("Starting build for DFN(appveyor mode=%s)" % (appveyor,))
+		print("Starting build for %s (appveyor mode=%s)" % (buildVars.addon_keyword, appveyor,))
 
 		# パッケージのパスとファイル名を決定
 		package_path = "output\\"
 		if 'APPVEYOR_REPO_TAG_NAME' in os.environ:
 			build_filename = os.environ['APPVEYOR_REPO_TAG_NAME']
+			# タグ名とバージョンが違ったらエラー
+			if build_filename == buildVars.addon_version:
+				print("Unexpected tag name. expecting %s." %(buildVars.addon_version,))
+				exit(-1)
 		else:
 			build_filename = 'snapshot'
 		print("Will be built as %s" % build_filename)
@@ -45,19 +49,18 @@ class build:
 		self.creen(package_path)
 
 		# appveyorでのスナップショットの場合はバージョン番号を一時的に書き換え
+		# バージョン番号をセット
 		if build_filename == "snapshot" and appveyor:
-			self.makeSnapshotVersionNumber()
+			self.version_number = self.makeSnapshotVersionNumber()
+		else:
+			self.version_number = build_filename
 
 		# ビルド
-		self.build(package_path, build_filename)
-		archive_name = "DFN-%s.zip" % (build_filename,)
-
-		# スナップショットでなければ
-		if build_filename == "snapshot" and not appveyor:
-			print("Skipping batch archiving because this is a local snapshot.")
-		else:
-			patch_name = "DFN-%spatch.zip" % (build_filename,)
-			self.makePackageInfo(archive_name, patch_name, build_filename)
+		self.build(package_path, self.version_number)
+		archive_name = "%s-%s.zip" % (buildVars.addon_keyword, build_filename,)
+		addon_filename = "%s-%s.nvda-addon" % (buildVars.addon_name, self.version_number)
+		shutil.copyfile(package_path + addon_filename, addon_filename)
+		self.makePackageInfo(archive_name, addon_filename, self.version_number)
 		print("Build finished!")
 
 	def runcmd(self,cmd):
@@ -84,11 +87,12 @@ class build:
 		minor = str(dt.day)
 		patch = str(int(math.floor((dt.hour*3600+dt.minute*60+dt.second)/86400*1000)))
 		bumpup.bumpup(major+"."+minor+"."+patch, str(dt.date()))
+		return major+"."+minor+"."+patch
 
 
 	def build(self, package_path, build_filename):
 		print("Building...")
-		shutil.copytree("public", "output")
+		shutil.copytree("public", package_path)
 		ret = self.runcmd("scons")
 		print("build finished with status %d" % ret)
 		if ret != 0:
@@ -96,9 +100,9 @@ class build:
 
 
 		print("Compressing into package...")
-		shutil.make_archive("DFN-%s" % (build_filename,),'zip','output')
+		shutil.make_archive("%s-%s" % (buildVars.addon_keyword, build_filename,),'zip',package_path)
 
-	def makePackageInfo(self, archive_name, patch_name, build_filename):
+	def makePackageInfo(self, archive_name, addon_filename, addon_version):
 		print("computing hash...")
 		#日本標準時オブジェクト
 		JST = datetime.timezone(datetime.timedelta(hours=+9))
@@ -108,13 +112,16 @@ class build:
 		with open(archive_name, mode = "rb") as f:
 			content = f.read()
 		package_hash = hashlib.sha1(content).hexdigest()
+		with open(addon_filename, mode = "rb") as f:
+			content = f.read()
+		addon_hash = hashlib.sha1(content).hexdigest()
 		print("creating package info...")
 		info = {}
 		info["package_hash"] = package_hash
-		info["patch_hash"] = None
-		info["version"] = buildVars.ADDON_VERSION
+		info["patch_hash"] = addon_hash
+		info["version"] = addon_version
 		info["released_date"] = dateStr
-		with open("DFN-%s_info.json" % (build_filename,), mode = "w") as f:
+		with open("DFN-%s_info.json" % (addon_version,), mode = "w") as f:
 			json.dump(info, f)
 
 

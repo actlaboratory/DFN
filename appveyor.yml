@@ -55,6 +55,7 @@ after_test:
 
 artifacts:
   - path: DFN-*.zip
+  - path: dokutor-*.nvda-addon
   - path: DFN-*.json
 
 deploy:
