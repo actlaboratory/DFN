@@ -2,6 +2,9 @@
 
 ADDON_VERSION = "1.0.0"
 ADDON_RELEASE_DATE = "2021-08-10"
+addon_name = "dokutor_for_nvda"
+addon_keyword = "DFN"
+
 
 # Build customizations
 # Change this file instead of sconstruct or manifest files, whenever possible.
@@ -19,7 +22,7 @@ def _(arg):
 # Add-on information variables
 addon_info = {
 	# add-on Name/identifier, internal for NVDA
-	"addon_name": "dokutor_for_nvda",
+	"addon_name": addon_name,
 	# Add-on summary, usually the user visible name of the addon.
 	# Translators: Summary for this add-on
 	# to be shown on installation and add-on information found in Add-ons Manager.
