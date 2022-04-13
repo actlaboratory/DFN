@@ -155,7 +155,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     
     def load(self):
         ui.message(_("理療科用読み辞書を適用します。"))
-        tones.beep(800, 100)
         # 理療科辞書オブジェクト読み込み
         with open(self.dictPickle, "rb") as f:
             speechDictHandler.dictionaries["riryou"] = _pickle.load(f)
@@ -167,8 +166,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def clear(self):
         ui.message(_("理療科用読み辞書を解除します。"))
-        tones.beep(800, 100)        
-
         if "riryou" in speechDictHandler.dictTypes:
             # 理療科辞書タイプを削除
             ls = list(speechDictHandler.dictTypes)
