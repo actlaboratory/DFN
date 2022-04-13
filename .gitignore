@@ -11,5 +11,6 @@ addon/doc/ja/
 .sconsign.dblite
 
 __pycache__
+/.venv
 /output
 DFN-snapshot.zip
