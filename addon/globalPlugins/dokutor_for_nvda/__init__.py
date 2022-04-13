@@ -27,6 +27,7 @@ except BaseException:
 
 confspec = {
     "checkForUpdatesOnStartup": "boolean(default=True)",
+    "enableOnStartup": "boolean(default=True)",
 }
 config.conf.spec["DFN_global"] = confspec
 
@@ -49,7 +50,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.autoUpdateChecker = updater.AutoUpdateChecker()
             self.autoUpdateChecker.autoUpdateCheck(mode=updater.AUTO)
         # end update check
+        
         self._setupMenu()
+        
+        if config.conf["DFN_global"]["runOnStartup"]:
+            self.load()
 
     def terminate(self):
         super(GlobalPlugin, self).terminate()
@@ -61,6 +66,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def _setupMenu(self):
         self.rootMenu = wx.Menu()
+        
+        self.runOnStartupToggleItem = self.rootMenu.Append(
+            wx.ID_ANY,
+            self.runOnStartupToggleString(),
+            _("起動時の理療科用読み辞書の適用状態を切り替えます。")
+        )
+        gui.mainFrame.sysTrayIcon.Bind(
+            wx.EVT_MENU, self.togglerunOnStartup, self.runOnStartupToggleItem)
         
         self.updateCheckToggleItem = self.rootMenu.Append(
             wx.ID_ANY,
@@ -81,8 +94,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.rootMenuItem = gui.mainFrame.sysTrayIcon.menu.Insert(
             2, wx.ID_ANY, _("DFN"), self.rootMenu)
 
+    def runOnStartupToggleString(self):
+        return _("起動時の理療科用読み辞書の適用を無効化") if self.getRunOnStartupSetting() is True else _("起動時の理療科用読み辞書の適用を有効化")
+    
     def updateCheckToggleString(self):
         return _("起動時のアップデートチェックを無効化") if self.getUpdateCheckSetting() is True else _("起動時のアップデートチェックを有効化")
+    
+    def toggleRunOnStartup(self, evt):
+        changed = not self.getRunOnStartupSetting()
+        self.setRunOnStartupSetting(changed)
+        msg = _("NVDA起動時に、自動で理療科用読み辞書を適用します。") if changed is True else _("NVDA起動時は、通常の読み辞書を利用します。")
+        self.runOnStartupToggleItem.SetItemLabel(self.runOnStartupToggleString())
+        wx.MessageBox(msg, _("設定変更完了"))
     
     def toggleUpdateCheck(self, evt):
         changed = not self.getUpdateCheckSetting()
@@ -94,6 +117,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def performUpdateCheck(self, evt):
         updater.AutoUpdateChecker().autoUpdateCheck(mode=updater.MANUAL)
 
+    def getRunOnStartupSetting(self):
+        return config.conf["DFN_global"]["runOnStartup"]
+    
+    def setRunOnStartupSetting(self, val):
+        config.conf["DFN_global"]["runOnStartup"] = val
+    
     def getUpdateCheckSetting(self):
         return config.conf["DFN_global"]["checkForUpdatesOnStartup"]
 
