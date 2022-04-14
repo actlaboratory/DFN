@@ -48,7 +48,7 @@ deploy:
     description: "DFN official release"
     auth_token:
       secure: iNSx8v6c+0TP9IyckinrvNWuX+hc7SKruOqRDl9GxdX59sZ2yqB8+UDAtqdPzKIg
-    artifact: /(DFN-.*\.zip)|(DFN-.*\.json)/
+    artifact: /(DFN-.*\.zip)|(dokutor_for_nvda-.*\.nvda-addon)|(DFN-.*\.json)/
     draft: true
     prerelease: false
     on:
