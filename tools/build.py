@@ -6,6 +6,7 @@
 #Copyright (C) 2021 Hiroki Fujii <hfujii@hisystron.com>
 
 #constantsのimport前に必要
+from audioop import add
 import os
 import sys
 sys.path.append(os.getcwd())
@@ -124,6 +125,7 @@ class build:
 		print("creating package info...")
 		info = {}
 		info["package_hash"] = package_hash
+		info["patch_filename"] = addon_filename,
 		info["patch_hash"] = addon_hash
 		info["version"] = addon_version
 		info["released_date"] = dateStr
