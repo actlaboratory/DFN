@@ -125,7 +125,7 @@ class build:
 		print("creating package info...")
 		info = {}
 		info["package_hash"] = package_hash
-		info["patch_filename"] = addon_filename,
+		info["patch_filename"] = addon_filename
 		info["patch_hash"] = addon_hash
 		info["version"] = addon_version
 		info["released_date"] = dateStr
