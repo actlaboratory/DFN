@@ -58,7 +58,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def terminate(self):
         super(GlobalPlugin, self).terminate()
-        lgc.freeHissdll()
         try:
             gui.mainFrame.sysTrayIcon.menu.Remove(self.rootMenuItem)
         except BaseException:
