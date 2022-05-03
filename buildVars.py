@@ -1,5 +1,11 @@
 # -*- coding: UTF-8 -*-
 
+ADDON_VERSION = "1.1.0"
+ADDON_RELEASE_DATE = "2022-05-03"
+ADDON_NAME = "dokutor_for_nvda"
+ADDON_KEYWORD = "DFN"
+
+
 # Build customizations
 # Change this file instead of sconstruct or manifest files, whenever possible.
 
@@ -16,7 +22,7 @@ def _(arg):
 # Add-on information variables
 addon_info = {
 	# add-on Name/identifier, internal for NVDA
-	"addon_name": "dokutor_for_nvda",
+	"addon_name": ADDON_NAME,
 	# Add-on summary, usually the user visible name of the addon.
 	# Translators: Summary for this add-on
 	# to be shown on installation and add-on information found in Add-ons Manager.
@@ -25,7 +31,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("このアドオンは、追加の理療科用読み辞書を提供します。理療科用読み辞書は、必要なときのみ、適用することができます。\n・適用状態切り替え: [NVDA] + [Ctrl] + [Shift] + D\n\n＜ご注意＞\n本アドオンは、添付の readme.txt をお読みになり、諸条件にご同意いただいたうえでご使用ください。"),
 	# version
-	"addon_version": "1.0",
+	"addon_version": ADDON_VERSION,
 	# Author(s)
 	"addon_author": "Hiroki Fujii - ACT Laboratory <support@actlab.org>",
 	# URL for the add-on documentation support
@@ -35,7 +41,7 @@ addon_info = {
 	# Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
 	"addon_minimumNVDAVersion": 2019.3,
 	# Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
-	"addon_lastTestedNVDAVersion": 2021.1,
+	"addon_lastTestedNVDAVersion": 2022.5,
 	# Add-on update channel (default is None, denoting stable releases,
 	# and for development releases, use "dev".)
 	# Do not change unless you know what you are doing!
