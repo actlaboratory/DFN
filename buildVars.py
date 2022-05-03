@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-ADDON_VERSION = "1.0.0"
-ADDON_RELEASE_DATE = "2021-08-10"
+ADDON_VERSION = "1.1.0"
+ADDON_RELEASE_DATE = "2022-05-03"
 ADDON_NAME = "dokutor_for_nvda"
 ADDON_KEYWORD = "DFN"
 
