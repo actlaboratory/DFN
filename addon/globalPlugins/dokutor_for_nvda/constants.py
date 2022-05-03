@@ -15,7 +15,7 @@ addonKeyword = "DFN"
 addonSummary = curAddon.manifest["summary"]
 addonVersion = curAddon.manifest["version"]
 addonDocFileName = curAddon.manifest["docFileName"]
-homepageURL = "https://stg.actlab.org"
+homepageURL = "https://actlab.org"
 updateURL = "%s/api/checkUpdate" % homepageURL
 
 UPDATER_NEED_UPDATE = 200
