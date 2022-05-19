@@ -153,7 +153,7 @@ ACT Laboratory(Accessible Tools Laboratory)は、プログラミングを学ぶ�
 
 ## 8. 更新履歴
 
-* 1.1.0 (2022/04/X)
+* 1.1.0 (2022/05/03)
     * NVDA 2022.1に対応
     * アップデーターを搭載
     * NVDAメニューからの操作に対応
