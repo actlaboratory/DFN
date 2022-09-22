@@ -17,6 +17,7 @@ import config
 from logHandler import log
 from .constants import *
 from . import updater
+from . import converter
 
 
 try:
@@ -40,6 +41,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
         # dokutar dic file path
         self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dat")
+        self.dictFile = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dict")
+        self.dictFileSource = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "dokutor_dev.csv")
         
         if globalVars.appArgs.secure:
             return
@@ -153,6 +156,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     
     def load(self):
         ui.message(_("理療科用読み辞書を適用します。"))
+        # 辞書ファイル読み込みモードのときはファイルを変換
+        if os.path.isfile(self.dictFileSource) and (not os.path.isfile(self.dictPickle)):
+            converter.convertFile(self.dictFileSource, self.dictFile)
+            dic = speechDictHandler.SpeechDict()
+            dic.load(self.dictFile)
+            with open(self.dictPickle, "wb") as f:
+                _pickle.dump(dic, f)
         # 理療科辞書オブジェクト読み込み
         with open(self.dictPickle, "rb") as f:
             speechDictHandler.dictionaries["riryou"] = _pickle.load(f)
