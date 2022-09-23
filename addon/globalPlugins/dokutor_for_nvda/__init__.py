@@ -17,6 +17,7 @@ import config
 from logHandler import log
 from .constants import *
 from . import updater
+from . import converter
 
 
 try:
@@ -40,6 +41,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
         # dokutar dic file path
         self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dat")
+        self.dictFile = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dict")
+        self.dictFileSource = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "dokutor_dev.csv")
         
         if globalVars.appArgs.secure:
             return
@@ -97,7 +100,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             wx.EVT_MENU, self.performUpdateCheck, self.updateCheckPerformItem)
         
         self.rootMenuItem = gui.mainFrame.sysTrayIcon.menu.Insert(
-            2, wx.ID_ANY, _("DFN"), self.rootMenu)
+            2, wx.ID_ANY, _("読ター For NVDA"), self.rootMenu)
 
     def dictStateToggleString(self):
         return _("理療科用読み辞書を解除する(&A)") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する(&A)")
@@ -141,6 +144,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if "riryou" in speechDictHandler.dictTypes:
             self.clear()
         else:
+            tones.beep(1200, 80)
             self.load()
     #Translators: Input help mode message for change dict command.
     script_changeDict.__doc__ = _("理療科用読み辞書の適用状態を切り替える")
@@ -149,10 +153,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if "riryou" in speechDictHandler.dictTypes:
             self.clear()
         else:
+            tones.beep(1200, 80)
             self.load()
     
     def load(self):
-        ui.message(_("理療科用読み辞書を適用します。"))
+        # 辞書ファイル読み込みモードのときはファイルを変換
+        if os.path.isfile(self.dictFileSource) and (not os.path.isfile(self.dictPickle)):
+            converter.convertFile(self.dictFileSource, self.dictFile)
+            dic = speechDictHandler.SpeechDict()
+            dic.load(self.dictFile)
+            with open(self.dictPickle, "wb") as f:
+                _pickle.dump(dic, f)
         # 理療科辞書オブジェクト読み込み
         with open(self.dictPickle, "rb") as f:
             speechDictHandler.dictionaries["riryou"] = _pickle.load(f)
@@ -162,9 +173,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         speechDictHandler.dictTypes = tuple(ls)
         self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
         self.finishTone()
+        ui.message(_("理療科用読み辞書使用中。"))
 
     def clear(self):
-        ui.message(_("理療科用読み辞書を解除します。"))
         if "riryou" in speechDictHandler.dictTypes:
             # 理療科辞書タイプを削除
             ls = list(speechDictHandler.dictTypes)
@@ -174,6 +185,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             del speechDictHandler.dictionaries["riryou"]
         self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
         self.finishTone()
+        ui.message(_("理療科用読み辞書解除。"))
 
     def finishTone(self):
         tones.beep(1200, 80)
