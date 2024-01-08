@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #app build tool
 #Copyright (C) 2019 Yukio Nozawa <personal@nyanchangames.com>
-#Copyright (C) 2019-2020 guredora <contact@guredora.com>
+#Copyright (C) 2019-2024 guredora <contact@guredora.com>
 #Copyright (C) 2021 yamahubuki <itiro.ishino@gmail.com>
 #Copyright (C) 2021 Hiroki Fujii <hfujii@hisystron.com>
 
