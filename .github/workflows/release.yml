@@ -29,6 +29,7 @@ jobs:
           draft: true
           files: |
             ./${{ github.event.repository.name }}-*.zip
+            ./*-*.nvda-addon
             ./${{ github.event.repository.name }}-*.json
 
   error_notify:

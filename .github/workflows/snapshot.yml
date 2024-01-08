@@ -59,7 +59,7 @@ jobs:
           body: Automatic build from master branch
           files: |
             ./${{ github.event.repository.name }}-*.zip
-            ./${{ github.event.repository.name }}-*.nvda-addon
+            ./*-*.nvda-addon
             ./${{ github.event.repository.name }}-*.json
 
       - name: register snapshot to actlab site
