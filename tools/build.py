@@ -44,7 +44,7 @@ class build:
 			exit(-1)
 
 		# 前のビルドをクリーンアップ
-		self.creen(package_path)
+		self.clean(package_path)
 
 		# appveyorでのスナップショットの場合はバージョン番号を一時的に書き換え
 		# バージョン番号をセット
