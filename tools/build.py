@@ -25,9 +25,9 @@ from tools import bumpup
 
 class build:
 	def __init__(self):
-		# appVeyorかどうかを判別し、処理をスタート
-		appveyor = self.setAppVeyor()
-		print("Starting build for %s (appveyor mode=%s)" % (buildVars.ADDON_KEYWORD, appveyor,))
+		# Github actionsなどの自動実行かどうかを判別し、処理をスタート
+		automated = self.setAutomated()
+		print("Starting build for %s(automated mode=%s)" % (buildVars.ADDON_KEYWORD, automated,))
 
 		# パッケージのパスとファイル名を決定
 		package_path = "output\\"
@@ -71,12 +71,10 @@ class build:
 		proc.communicate()
 		return proc.poll()
 
-	def setAppVeyor(self):
-		if len(sys.argv)>=2 and sys.argv[1]=="--appveyor":
-			return True
-		return False
+	def setAutomated(self):
+		return os.environ.get("GITHUB_ACTIONS", "false") == "true"
 
-	def creen(self,package_path):
+	def clean(self,package_path):
 		if os.path.isdir(package_path):
 			print("Clearling previous build...")
 			shutil.rmtree("output\\")
