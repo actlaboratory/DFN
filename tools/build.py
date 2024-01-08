@@ -48,7 +48,7 @@ class build:
 
 		# 自動実行でのスナップショットの場合はバージョン番号を一時的に書き換え
 		if build_filename == "snapshot" and automated:
-			self.makeSnapshotVersionNumber()
+			print(self.makeSnapshotVersionNumber())
 
 		# ビルド
 		self.build(package_path, build_filename)
@@ -83,7 +83,6 @@ class build:
 		bumpup.bumpup(major+"."+minor+"."+patch, str(dt.date()))
 		return major+"."+minor+"."+patch
 
-
 	def build(self, package_path, build_filename):
 		print("Building...")
 		shutil.copytree("public", package_path)
@@ -91,8 +90,6 @@ class build:
 		print("build finished with status %d" % ret)
 		if ret != 0:
 			sys.exit(ret)
-
-
 		print("Compressing into package...")
 		shutil.make_archive("%s-%s" % (buildVars.ADDON_KEYWORD, build_filename,),'zip',package_path)
 
