@@ -31,14 +31,11 @@ class build:
 
 		# パッケージのパスとファイル名を決定
 		package_path = "output\\"
-		if 'APPVEYOR_REPO_TAG_NAME' in os.environ:
-			build_filename = os.environ['APPVEYOR_REPO_TAG_NAME']
-			# タグ名とバージョンが違ったらエラー
-			if build_filename != buildVars.ADDON_VERSION:
-				print("Unexpected tag name. expecting %s." %(buildVars.ADDON_VERSION,))
-				exit(-1)
-		else:
-			build_filename = 'snapshot'
+		build_filename = os.environ.get('TAG_NAME', 'snapshot')
+		# snapshotではなかった場合は、タグ名とバージョンが違ったらエラー
+		if (build_filename != "snapshot") and (build_filename != buildVars.ADDON_VERSION):
+			print("Unexpected tag name. expecting %s." %(buildVars.ADDON_VERSION,))
+			exit(-1)
 		print("Will be built as %s" % build_filename)
 
 		# addonフォルダの存在を確認
