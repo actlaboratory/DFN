@@ -18,6 +18,7 @@ from logHandler import log
 from .constants import *
 from . import updater
 from . import converter
+from .compat import messageBox
 
 
 try:
@@ -116,14 +117,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.setEnableOnStartupSetting(changed)
         msg = _("NVDA起動時に、自動で理療科用読み辞書を適用します。") if changed is True else _("NVDA起動時は、通常の読み辞書を利用します。")
         self.enableOnStartupToggleItem.SetItemLabel(self.enableOnStartupToggleString())
-        wx.MessageBox(msg, _("設定変更完了"))
+        messageBox(msg, _("設定変更完了"))
     
     def toggleUpdateCheck(self, evt):
         changed = not self.getUpdateCheckSetting()
         self.setUpdateCheckSetting(changed)
         msg = _("NVDA起動時に、自動でDFNのアップデートを確認します。") if changed is True else _("NVDA起動時に、DFNのアップデートを確認しません。")
         self.updateCheckToggleItem.SetItemLabel(self.updateCheckToggleString())
-        wx.MessageBox(msg, _("設定変更完了"))
+        messageBox(msg, _("設定変更完了"))
 
     def performUpdateCheck(self, evt):
         updater.AutoUpdateChecker().autoUpdateCheck(mode=updater.MANUAL)
