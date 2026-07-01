@@ -13,11 +13,15 @@ import tones
 import time
 import ui
 import globalVars
+try:
+    import buildVersion as _versionInfo
+except ImportError:
+    import versionInfo as _versionInfo
+
 import config
 from logHandler import log
 from .constants import *
 from . import updater
-from . import converter
 from .compat import messageBox
 
 
@@ -29,9 +33,14 @@ except BaseException:
 
 confspec = {
     "checkForUpdatesOnStartup": "boolean(default=True)",
-    "enableOnStartup": "boolean(default=False)",
+    "enableOnStartup": "boolean(default=False)", # 2026.1以下
+    "onStartup": "string(default=disable)", # 2026.2以上
 }
 config.conf.spec["DFN_global"] = confspec
+
+
+def isCompatibleWith20262():
+    return (_versionInfo.version_year == 2026 and _versionInfo.version_major >= 2) or _versionInfo.version_year >= 2027
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
@@ -40,10 +49,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def __init__(self, *args, **kwargs):
         super(GlobalPlugin, self).__init__(*args, **kwargs)
         
-        # dokutar dic file path
-        self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dat")
-        self.dictFile = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dict")
-        self.dictFileSource = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "dokutor_dev.csv")
+        if not isCompatibleWith20262():
+            # dokutor dic file path
+            self.dictPickle = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dat")
+            self.dictFile = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "riryou_dict.dict")
+            self.dictFileSource = os.path.join(os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "dokutor_dev.csv")
         
         if globalVars.appArgs.secure:
             return
@@ -56,9 +66,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # end update check
         
         self._setupMenu()
-        
-        if config.conf["DFN_global"]["enableOnStartup"]:
-            self.load()
+
+        startupConf = self.getEnableOnStartupSetting()
+        if startupConf == True or startupConf == "enable":
+            if isCompatibleWith20262():
+                self.load(True)
+            else:
+                self.load()
+        elif startupConf == False or startupConf == "disable":
+            self.clear(True)
 
     def terminate(self):
         super(GlobalPlugin, self).terminate()
@@ -76,14 +92,35 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         gui.mainFrame.sysTrayIcon.Bind(
             wx.EVT_MENU, self.toggleDictState, self.dictStateToggleItem)
         
-        self.enableOnStartupToggleItem = self.rootMenu.Append(
+        self.enableOnStartupToggleMenu = wx.Menu()
+        self.StartupEnable = self.enableOnStartupToggleMenu.AppendRadioItem(
             wx.ID_ANY,
-            self.enableOnStartupToggleString(),
-            _("起動時の理療科用読み辞書の適用状態を切り替えます。")
+            _("有効"),
+            _("起動時に常に有効にします。")
+        )
+        self.StartupDisable = self.enableOnStartupToggleMenu.AppendRadioItem(
+            wx.ID_ANY,
+            _("無効"),
+            _("起動時に常に無効にします。")
+        )
+        if isCompatibleWith20262():
+            self.StartupSame = self.enableOnStartupToggleMenu.AppendRadioItem(
+                wx.ID_ANY,
+                _("前回と同じ"),
+                _("前回の状態を保持して起動します。")
+            )
+        self.enableOnStartupToggleItem = self.rootMenu.AppendSubMenu(
+            self.enableOnStartupToggleMenu,
+            _("起動時の理療科用読み辞書の状態"),
+            _("起動時の理療科用読み辞書の適用状態を設定します。")
         )
         gui.mainFrame.sysTrayIcon.Bind(
-            wx.EVT_MENU, self.toggleEnableOnStartup, self.enableOnStartupToggleItem)
-        
+            wx.EVT_MENU, self.toggleEnableOnStartupEnable, self.StartupEnable)
+        gui.mainFrame.sysTrayIcon.Bind(
+            wx.EVT_MENU, self.toggleEnableOnStartupDisable, self.StartupDisable)
+        if isCompatibleWith20262():
+            gui.mainFrame.sysTrayIcon.Bind(
+                wx.EVT_MENU, self.toggleEnableOnStartupSame, self.StartupSame)
         self.updateCheckToggleItem = self.rootMenu.Append(
             wx.ID_ANY,
             self.updateCheckToggleString(),
@@ -103,37 +140,74 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.rootMenuItem = gui.mainFrame.sysTrayIcon.menu.Insert(
             2, wx.ID_ANY, _("読ター For NVDA"), self.rootMenu)
 
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU_OPEN, self.onRootMenuOpen)
+
+    def onRootMenuOpen(self, evt):
+        try:
+            self.updateCheckToggleItem.SetItemLabel(self.updateCheckToggleString())
+            self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
+            startupConf = self.getEnableOnStartupSetting()
+            if startupConf == True or startupConf == "enable":
+                self.StartupEnable.Check(True)
+            elif startupConf == False or startupConf == "disable":
+                self.StartupDisable.Check(True)
+            else:
+                self.StartupSame.Check(True)
+        except Exception:
+            pass
+        evt.Skip()
+
     def dictStateToggleString(self):
-        return _("理療科用読み辞書を解除する(&A)") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する(&A)")
-    
-    def enableOnStartupToggleString(self):
-        return _("起動時の理療科用読み辞書の適用を無効化") if self.getEnableOnStartupSetting() is True else _("起動時の理療科用読み辞書の適用を有効化")
+        if isCompatibleWith20262():
+            return _("理療科用読み辞書を解除する(&A)") if self._isEnableDictionaryInConfig() else _("理療科用読み辞書を適用する(&A)")
+        else:
+            return _("理療科用読み辞書を解除する(&A)") if "riryou" in speechDictHandler.dictTypes else _("理療科用読み辞書を適用する(&A)")
     
     def updateCheckToggleString(self):
         return _("起動時のアップデートの確認を無効化") if self.getUpdateCheckSetting() is True else _("起動時のアップデートの確認を有効化")
     
-    def toggleEnableOnStartup(self, evt):
-        changed = not self.getEnableOnStartupSetting()
-        self.setEnableOnStartupSetting(changed)
-        msg = _("NVDA起動時に、自動で理療科用読み辞書を適用します。") if changed is True else _("NVDA起動時は、通常の読み辞書を利用します。")
-        self.enableOnStartupToggleItem.SetItemLabel(self.enableOnStartupToggleString())
+
+    def toggleEnableOnStartupEnable(self, evt):
+        if isCompatibleWith20262():
+            self.setEnableOnStartupSetting("enable")
+        else:
+            self.setEnableOnStartupSetting(True)
+        msg = _("NVDA起動時に、自動で理療科用読み辞書を適用します。")
+        messageBox(msg, _("設定変更完了"))
+
+    def toggleEnableOnStartupDisable(self, evt):
+        if isCompatibleWith20262():
+            self.setEnableOnStartupSetting("disable")
+        else:
+            self.setEnableOnStartupSetting(False)
+        msg = _("NVDA起動時は、通常の読み辞書を利用します。")
+        messageBox(msg, _("設定変更完了"))
+
+    def toggleEnableOnStartupSame(self, evt):
+        self.setEnableOnStartupSetting("same")
+        msg = _("NVDA起動時は、前回の設定を適用します。")
         messageBox(msg, _("設定変更完了"))
     
     def toggleUpdateCheck(self, evt):
         changed = not self.getUpdateCheckSetting()
         self.setUpdateCheckSetting(changed)
         msg = _("NVDA起動時に、自動でDFNのアップデートを確認します。") if changed is True else _("NVDA起動時に、DFNのアップデートを確認しません。")
-        self.updateCheckToggleItem.SetItemLabel(self.updateCheckToggleString())
         messageBox(msg, _("設定変更完了"))
 
     def performUpdateCheck(self, evt):
         updater.AutoUpdateChecker().autoUpdateCheck(mode=updater.MANUAL)
 
     def getEnableOnStartupSetting(self):
-        return config.conf["DFN_global"]["enableOnStartup"]
+        if isCompatibleWith20262():
+            return config.conf["DFN_global"]["onStartup"]
+        else:
+            return config.conf["DFN_global"]["enableOnStartup"]
     
     def setEnableOnStartupSetting(self, val):
-        config.conf["DFN_global"]["enableOnStartup"] = val
+        if isCompatibleWith20262():
+            config.conf["DFN_global"]["onStartup"] = val
+        else:
+            config.conf["DFN_global"]["enableOnStartup"] = val
     
     def getUpdateCheckSetting(self):
         return config.conf["DFN_global"]["checkForUpdatesOnStartup"]
@@ -142,6 +216,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         config.conf["DFN_global"]["checkForUpdatesOnStartup"] = val
 
     def script_changeDict(self, gesture):
+        if isCompatibleWith20262():
+            if self._isEnableDictionaryInConfig():
+                self.finishTone()
+                self.clear()
+            else:
+                tones.beep(1200, 80)
+                self.load()
+            return
         if "riryou" in speechDictHandler.dictTypes:
             self.clear()
         else:
@@ -151,16 +233,43 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     script_changeDict.__doc__ = _("理療科用読み辞書の適用状態を切り替える")
 
     def toggleDictState(self, evt=None):
+        if isCompatibleWith20262():
+            if self._isEnableDictionaryInConfig():
+               self.clear()
+            else:
+                self.load()
+            return
         if "riryou" in speechDictHandler.dictTypes:
             self.clear()
         else:
             tones.beep(1200, 80)
             self.load()
     
-    def load(self):
-        # 辞書ファイル読み込みモードのときはファイルを変換
-        if os.path.isfile(self.dictFileSource) and (not os.path.isfile(self.dictPickle)):
-            converter.convertFile(self.dictFileSource, self.dictFile)
+    def _isEnableDictionaryInConfig(self):
+        speechDicts = list(config.conf["speech"]["speechDictionaries"])
+        return addonName in speechDicts
+
+    def _enableDictionaryInConf(self):
+        speechDicts = list(config.conf["speech"]["speechDictionaries"])
+        if addonName not in speechDicts:
+            speechDicts.append(addonName)
+            config.conf["speech"]["speechDictionaries"] = speechDicts
+
+    def _disableDictionaryInConf(self):
+        speechDicts = list(config.conf["speech"]["speechDictionaries"])
+        if addonName in speechDicts:
+            speechDicts.remove(addonName)
+            config.conf["speech"]["speechDictionaries"] = speechDicts
+
+    def load(self, silent=False):
+        # 2026.2以降、辞書の有効化
+        if isCompatibleWith20262():
+            self._enableDictionaryInConf()
+            if not silent:
+                ui.message(_("理療科用読み辞書使用中。"))
+            return
+        # 2026.1以下、辞書ファイル読み込みモードのときはファイルを変換
+        if os.path.isfile(self.dictFile) and (not os.path.isfile(self.dictPickle)) and (not isCompatibleWith20262()):
             dic = speechDictHandler.SpeechDict()
             dic.load(self.dictFile)
             with open(self.dictPickle, "wb") as f:
@@ -172,11 +281,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         ls = list(speechDictHandler.dictTypes)
         ls.insert(ls.index("default") + 1, "riryou")
         speechDictHandler.dictTypes = tuple(ls)
-        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
-        self.finishTone()
-        ui.message(_("理療科用読み辞書使用中。"))
+        if not silent:
+            self.finishTone()
+            ui.message(_("理療科用読み辞書使用中。"))
 
-    def clear(self):
+    def clear(self, silent=False):
+        # 2026.2以降、辞書の無効化
+        if isCompatibleWith20262():
+            self._disableDictionaryInConf()
+            if not silent:
+                ui.message(_("理療科用読み辞書解除。"))
+            return
         if "riryou" in speechDictHandler.dictTypes:
             # 理療科辞書タイプを削除
             ls = list(speechDictHandler.dictTypes)
@@ -184,9 +299,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             speechDictHandler.dictTypes = tuple(ls)
         if "riryou" in speechDictHandler.dictionaries:
             del speechDictHandler.dictionaries["riryou"]
-        self.dictStateToggleItem.SetItemLabel(self.dictStateToggleString())
-        self.finishTone()
-        ui.message(_("理療科用読み辞書解除。"))
+        if not silent:
+            self.finishTone()
+            ui.message(_("理療科用読み辞書解除。"))
 
     def finishTone(self):
         tones.beep(1200, 80)

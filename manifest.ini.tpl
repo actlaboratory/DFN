@@ -8,3 +8,8 @@ docFileName = {addon_docFileName}
 minimumNVDAVersion = {addon_minimumNVDAVersion}
 lastTestedNVDAVersion = {addon_lastTestedNVDAVersion}
 updateChannel = {addon_updateChannel}
+
+[speechDictionaries]
+	[[dokutor_for_nvda]]
+		displayName = 読ター For NVDA
+		mandatory = false
