@@ -265,7 +265,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # 2026.2以降、辞書の有効化
         if isCompatibleWith20262():
             self._enableDictionaryInConf()
-            if silent:
+            if not silent:
                 ui.message(_("理療科用読み辞書使用中。"))
             return
         # 2026.1以下、辞書ファイル読み込みモードのときはファイルを変換
@@ -281,7 +281,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         ls = list(speechDictHandler.dictTypes)
         ls.insert(ls.index("default") + 1, "riryou")
         speechDictHandler.dictTypes = tuple(ls)
-        if silent:
+        if not silent:
             self.finishTone()
             ui.message(_("理療科用読み辞書使用中。"))
 
@@ -289,7 +289,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # 2026.2以降、辞書の無効化
         if isCompatibleWith20262():
             self._disableDictionaryInConf()
-            if silent:
+            if not silent:
                 ui.message(_("理療科用読み辞書解除。"))
             return
         if "riryou" in speechDictHandler.dictTypes:
@@ -299,7 +299,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             speechDictHandler.dictTypes = tuple(ls)
         if "riryou" in speechDictHandler.dictionaries:
             del speechDictHandler.dictionaries["riryou"]
-        if silent:
+        if not silent:
             self.finishTone()
             ui.message(_("理療科用読み辞書解除。"))
 
